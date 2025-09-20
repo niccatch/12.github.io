@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>십이운성 집중 학습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .hanja {
+            font-family: serif;
+            /* font-size는 Tailwind 클래스로 제어 */
+            line-height: 1;
+        }
+        .btn-option.correct {
+            background-color: #22c55e; /* green-500 */
+            color: white;
+            border-color: #16a34a; /* green-600 */
+        }
+        .btn-option.incorrect {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            border-color: #dc2626; /* red-600 */
+        }
+        .step-title {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #4338ca; /* indigo-700 */
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .btn-jiji, .btn-stem {
+             font-size: 1.5rem;
+             font-family: serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 text-center">
+        
+        <!-- 천간 선택 화면 -->
+        <div id="selection-container">
+            <header class="mb-6">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">십이운성 집중 학습</h1>
+                <p class="text-slate-500 mt-2 text-sm sm:text-base">학습하고 싶은 천간(天干)을 선택하세요.</p>
+            </header>
+            <div id="stem-selection-buttons" class="grid grid-cols-5 gap-2 sm:gap-3">
+                <!-- JS로 천간 버튼 생성 -->
+            </div>
+        </div>
+
+        <!-- 퀴즈 화면 -->
+        <div id="quiz-container" class="hidden">
+            <header class="mb-4 relative">
+                <h1 id="quiz-header" class="text-2xl sm:text-3xl font-bold text-slate-800"></h1>
+                <p id="progress-indicator" class="text-slate-500 mt-2"></p>
+            </header>
+            
+            <!-- 1단계: 왕지 퀴즈 -->
+            <div id="step1-container">
+                <div class="mb-4">
+                    <span class="step-title">1단계</span>
+                    <h2 class="text-lg sm:text-xl font-semibold text-slate-700 mt-2">이 천간의 왕지(旺支)는 무엇일까요?</h2>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-6 mb-6 flex justify-center">
+                    <p id="step1-stem-display" class="hanja text-7xl sm:text-8xl text-sky-600"></p>
+                </div>
+                <div id="step1-options-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"></div>
+                <div class="h-12 flex flex-col items-center justify-center">
+                    <div id="step1-feedback-area" class="text-xl sm:text-2xl font-bold h-8 mb-2"></div>
+                    <button id="proceed-step2-btn" class="hidden bg-indigo-600 text-white w-full py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-indigo-700">다음 단계 (삼합)</button>
+                </div>
+            </div>
+
+            <!-- 2단계: 삼합 퀴즈 -->
+            <div id="step2-container" class="hidden">
+                 <div class="mb-4">
+                    <span class="step-title">2단계</span>
+                    <h2 class="text-lg sm:text-xl font-semibold text-slate-700 mt-2">이 천간이 속한 삼합(三合) 그룹은 무엇일까요?</h2>
+                </div>
+                <div id="step2-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"></div>
+                <div class="h-12 flex flex-col items-center justify-center">
+                    <div id="step2-feedback-area" class="text-xl sm:text-2xl font-bold h-8 mb-2"></div>
+                    <button id="start-unseong-quiz-btn" class="hidden bg-indigo-600 text-white w-full py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-indigo-700">십이운성 학습 시작</button>
+                </div>
+            </div>
+
+            <!-- 3단계: 십이운성 퀴즈 -->
+            <div id="step3-container" class="hidden">
+                 <div class="mb-4">
+                    <span class="step-title">십이운성</span>
+                    <h2 class="text-lg sm:text-xl font-semibold text-slate-700 mt-2">제시된 지지의 십이운성은 무엇일까요?</h2>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-6 mb-6 flex justify-center items-center space-x-8">
+                     <div>
+                        <p class="text-sm text-slate-600 mb-2">천간(天干)</p>
+                        <p id="step3-stem-display" class="hanja text-7xl sm:text-8xl text-sky-600"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-600 mb-2">지지(地支)</p>
+                        <p id="branch-display" class="hanja text-7xl sm:text-8xl text-amber-600"></p>
+                    </div>
+                </div>
+                <div id="step3-options-container" class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 mb-4"></div>
+                <div class="h-12 flex flex-col items-center justify-center">
+                    <div id="step3-feedback-area" class="text-xl sm:text-2xl font-bold h-8 mb-2"></div>
+                    <button id="next-branch-button" class="hidden bg-indigo-600 text-white w-full py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-indigo-700">다음 지지 문제</button>
+                </div>
+            </div>
+
+            <!-- 완료 화면 -->
+            <div id="completion-container" class="hidden">
+                <h2 class="text-2xl font-bold text-green-600 mb-4">학습 완료!</h2>
+                <p id="completion-text" class="text-slate-600 text-lg mb-6"></p>
+                <button id="restart-button" class="bg-indigo-600 text-white w-full py-3 rounded-lg text-lg font-semibold hover:bg-indigo-700">다른 천간 선택하기</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const stems = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        const branches = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+        const unseongs = ['장생', '목욕', '관대', '건록', '제왕', '쇠', '병', '사', '묘', '절', '태', '양'];
+
+        const unseongData = {
+            '甲': ['목욕', '관대', '건록', '제왕', '쇠', '병', '사', '묘', '절', '태', '양', '장생'], '乙': ['병', '쇠', '제왕', '건록', '관대', '목욕', '장생', '양', '태', '절', '묘', '사'],
+            '丙': ['태', '양', '장생', '목욕', '관대', '건록', '제왕', '쇠', '병', '사', '묘', '절'], '丁': ['절', '묘', '사', '병', '쇠', '제왕', '건록', '관대', '목욕', '장생', '양', '태'],
+            '戊': ['태', '양', '장생', '목욕', '관대', '건록', '제왕', '쇠', '병', '사', '묘', '절'], '己': ['절', '묘', '사', '병', '쇠', '제왕', '건록', '관대', '목욕', '장생', '양', '태'],
+            '庚': ['사', '묘', '절', '태', '양', '장생', '목욕', '관대', '건록', '제왕', '쇠', '병'], '辛': ['장생', '양', '태', '절', '묘', '사', '병', '쇠', '제왕', '건록', '관대', '목욕'],
+            '壬': ['제왕', '쇠', '병', '사', '묘', '절', '태', '양', '장생', '목욕', '관대', '건록'], '癸': ['건록', '관대', '목욕', '장생', '양', '태', '절', '묘', '사', '병', '쇠', '제왕']
+        };
+        
+        const stemInfo = {
+            '甲': { wangji: '卯', samhap: '亥卯未' }, '丙': { wangji: '午', samhap: '寅午戌' }, '戊': { wangji: '午', samhap: '寅午戌' }, '庚': { wangji: '酉', samhap: '巳酉丑' }, '壬': { wangji: '子', samhap: '申子辰' },
+            '乙': { wangji: '寅', samhap: '午寅戌' }, '丁': { wangji: '巳', samhap: '酉巳丑' }, '己': { wangji: '巳', samhap: '酉巳丑' }, '辛': { wangji: '申', samhap: '子申辰' }, '癸': { wangji: '亥', samhap: '卯亥未' }
+        };
+
+        const allWangji = ['卯', '午', '酉', '子', '寅', '巳', '申', '亥'];
+        const allSamhapGroups = ['亥卯未', '寅午戌', '巳酉丑', '申子辰', '午寅戌', '酉巳丑', '子申辰', '卯亥未'];
+
+        const selectionContainer = document.getElementById('selection-container');
+        const stemSelectionButtons = document.getElementById('stem-selection-buttons');
+        const quizContainer = document.getElementById('quiz-container');
+        const quizHeader = document.getElementById('quiz-header');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const completionContainer = document.getElementById('completion-container');
+        const completionText = document.getElementById('completion-text');
+
+        const containers = { step1: document.getElementById('step1-container'), step2: document.getElementById('step2-container'), step3: document.getElementById('step3-container')};
+        const displays = { step1Stem: document.getElementById('step1-stem-display'), step3Stem: document.getElementById('step3-stem-display'), branch: document.getElementById('branch-display') };
+        const optionContainers = { step1: document.getElementById('step1-options-container'), step2: document.getElementById('step2-options-container'), step3: document.getElementById('step3-options-container')};
+        const feedbackAreas = { step1: document.getElementById('step1-feedback-area'), step2: document.getElementById('step2-feedback-area'), step3: document.getElementById('step3-feedback-area') };
+        const buttons = { toStep2: document.getElementById('proceed-step2-btn'), startUnseong: document.getElementById('start-unseong-quiz-btn'), nextBranch: document.getElementById('next-branch-button'), restart: document.getElementById('restart-button') };
+
+        let selectedStem, remainingBranches, currentBranch, correctWangji, correctSamhap, correctUnseong;
+        let totalBranchesCount;
+
+        function initializeApp() {
+            selectionContainer.classList.remove('hidden');
+            quizContainer.classList.add('hidden');
+            completionContainer.classList.add('hidden');
+            stemSelectionButtons.innerHTML = '';
+            stems.forEach(stem => {
+                const button = document.createElement('button');
+                button.textContent = stem;
+                button.className = 'btn-stem border border-slate-300 rounded-lg py-4 text-slate-700 font-semibold hover:bg-slate-200 transition-colors';
+                button.addEventListener('click', () => startInitialQuiz(stem));
+                stemSelectionButtons.appendChild(button);
+            });
+        }
+
+        function startInitialQuiz(stem) {
+            selectedStem = stem;
+            correctWangji = stemInfo[selectedStem].wangji;
+            correctSamhap = stemInfo[selectedStem].samhap;
+
+            selectionContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            Object.values(containers).forEach(c => c.classList.add('hidden'));
+            Object.values(feedbackAreas).forEach(f => { f.textContent = ''; f.className = 'text-2xl font-bold h-8 mb-2'; });
+            
+            containers.step1.classList.remove('hidden');
+            
+            quizHeader.innerHTML = `<span class="hanja text-2xl">${selectedStem}</span> 기본 정보 확인`;
+            progressIndicator.textContent = '왕지 → 삼합 순서로 풀어주세요.';
+            displays.step1Stem.textContent = selectedStem;
+
+            renderWangjiOptions();
+        }
+
+        function startUnseongLoop() {
+            remainingBranches = [...branches].sort(() => Math.random() - 0.5);
+            totalBranchesCount = remainingBranches.length;
+            
+            Object.values(containers).forEach(c => c.classList.add('hidden'));
+            quizHeader.innerHTML = `<span class="hanja text-2xl">${selectedStem}</span> 십이운성 집중 학습`;
+
+            loadNextUnseongQuestion();
+        }
+
+        function loadNextUnseongQuestion() {
+            if (remainingBranches.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+
+            currentBranch = remainingBranches.pop();
+            correctUnseong = unseongData[selectedStem][branches.indexOf(currentBranch)];
+
+            containers.step3.classList.remove('hidden');
+            feedbackAreas.step3.textContent = '';
+            feedbackAreas.step3.className = 'text-xl sm:text-2xl font-bold h-8 mb-2';
+            buttons.nextBranch.classList.add('hidden');
+            
+            progressIndicator.textContent = `${totalBranchesCount - remainingBranches.length} / ${totalBranchesCount}`;
+            displays.step3Stem.textContent = selectedStem;
+            displays.branch.textContent = currentBranch;
+            renderUnseongOptions();
+        }
+
+        function renderOptions(container, items, checker, dataKey, extraClass = '') {
+            container.innerHTML = '';
+            items.forEach(item => {
+                const button = document.createElement('button');
+                button.textContent = item;
+                button.dataset[dataKey] = item;
+                button.className = `btn-option border border-slate-300 rounded-lg py-3 text-sm sm:text-base text-slate-700 font-semibold hover:bg-slate-200 transition-colors ${extraClass}`;
+                container.appendChild(button);
+            });
+        }
+
+        function renderWangjiOptions() {
+            renderOptions(optionContainers.step1, allWangji, checkWangjiAnswer, 'branch', 'btn-jiji');
+        }
+
+        function checkWangjiAnswer(selected, button) {
+            handleAnswer(optionContainers.step1, selected === correctWangji, `오답입니다. (${correctWangji})`, feedbackAreas.step1, button, buttons.toStep2, `button[data-branch="${correctWangji}"]`);
+        }
+
+        function renderSamhapOptions() {
+            let options = [correctSamhap];
+            let otherOptions = [...new Set(allSamhapGroups)].filter(s => s !== correctSamhap);
+            while (options.length < 4 && otherOptions.length > 0) {
+                options.push(otherOptions.splice(Math.floor(Math.random() * otherOptions.length), 1)[0]);
+            }
+            renderOptions(optionContainers.step2, options.sort(() => .5 - Math.random()), checkSamhapAnswer, 'samhap', 'font-serif');
+        }
+
+        function checkSamhapAnswer(selected, button) {
+            handleAnswer(optionContainers.step2, selected === correctSamhap, `오답입니다. (${correctSamhap})`, feedbackAreas.step2, button, buttons.startUnseong, `button[data-samhap="${correctSamhap}"]`);
+        }
+        
+        function renderUnseongOptions() {
+            renderOptions(optionContainers.step3, [...unseongs].sort(() => 0.5 - Math.random()), checkUnseongAnswer, 'unseong');
+        }
+        
+        function checkUnseongAnswer(selected, button) {
+             handleAnswer(optionContainers.step3, selected === correctUnseong, `오답입니다. (${correctUnseong})`, feedbackAreas.step3, button, buttons.nextBranch, `button[data-unseong="${correctUnseong}"]`);
+        }
+
+        function handleAnswer(container, isCorrect, wrongMsg, feedbackEl, button, nextBtn, correctSelector) {
+            container.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            if (isCorrect) {
+                feedbackEl.textContent = '정답입니다!';
+                feedbackEl.classList.add('text-green-600');
+                button.classList.add('correct');
+            } else {
+                feedbackEl.textContent = wrongMsg;
+                feedbackEl.classList.add('text-red-600');
+                button.classList.add('incorrect');
+                const correctButton = container.querySelector(correctSelector);
+                if (correctButton) correctButton.classList.add('correct');
+            }
+            nextBtn.classList.remove('hidden');
+        }
+        
+        function showCompletionScreen() {
+             Object.values(containers).forEach(c => c.classList.add('hidden'));
+             completionContainer.classList.remove('hidden');
+             quizHeader.textContent = '';
+             progressIndicator.textContent = '';
+             completionText.textContent = `천간 ${selectedStem}의 12운성 학습을 모두 마쳤습니다!`;
+        }
+
+        buttons.toStep2.addEventListener('click', () => {
+            containers.step1.classList.add('hidden');
+            containers.step2.classList.remove('hidden');
+            renderSamhapOptions();
+        });
+
+        buttons.startUnseong.addEventListener('click', startUnseongLoop);
+        buttons.nextBranch.addEventListener('click', loadNextUnseongQuestion);
+        buttons.restart.addEventListener('click', initializeApp);
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
+
+
