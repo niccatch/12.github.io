@@ -57,8 +57,9 @@
         <!-- 퀴즈 화면 -->
         <div id="quiz-container" class="hidden">
             <header class="mb-4 relative">
-                <h1 id="quiz-header" class="text-2xl sm:text-3xl font-bold text-slate-800"></h1>
+                <h1 id="quiz-header" class="text-2xl sm:text-3xl font-bold text-slate-800 pr-24"></h1>
                 <p id="progress-indicator" class="text-slate-500 mt-2"></p>
+                <button id="change-stem-button" class="absolute top-0 right-0 bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold hover:bg-slate-300 transition-colors">천간 변경</button>
             </header>
             
             <!-- 1단계: 왕지 퀴즈 -->
@@ -152,6 +153,7 @@
         const progressIndicator = document.getElementById('progress-indicator');
         const completionContainer = document.getElementById('completion-container');
         const completionText = document.getElementById('completion-text');
+        const changeStemButton = document.getElementById('change-stem-button');
 
         const containers = { step1: document.getElementById('step1-container'), step2: document.getElementById('step2-container'), step3: document.getElementById('step3-container')};
         const displays = { step1Stem: document.getElementById('step1-stem-display'), step3Stem: document.getElementById('step3-stem-display'), branch: document.getElementById('branch-display') };
@@ -184,7 +186,7 @@
             selectionContainer.classList.add('hidden');
             quizContainer.classList.remove('hidden');
             Object.values(containers).forEach(c => c.classList.add('hidden'));
-            Object.values(feedbackAreas).forEach(f => { f.textContent = ''; f.className = 'text-2xl font-bold h-8 mb-2'; });
+            Object.values(feedbackAreas).forEach(f => { f.textContent = ''; f.className = 'text-xl sm:text-2xl font-bold h-8 mb-2'; });
             
             containers.step1.classList.remove('hidden');
             
@@ -203,6 +205,12 @@
             quizHeader.innerHTML = `<span class="hanja text-2xl">${selectedStem}</span> 십이운성 집중 학습`;
 
             loadNextUnseongQuestion();
+        }
+        
+        function proceedToStep2() {
+            containers.step1.classList.add('hidden');
+            containers.step2.classList.remove('hidden');
+            renderSamhapOptions();
         }
 
         function loadNextUnseongQuestion() {
@@ -232,6 +240,7 @@
                 button.textContent = item;
                 button.dataset[dataKey] = item;
                 button.className = `btn-option border border-slate-300 rounded-lg py-3 text-sm sm:text-base text-slate-700 font-semibold hover:bg-slate-200 transition-colors ${extraClass}`;
+                button.addEventListener('click', () => checker(item, button));
                 container.appendChild(button);
             });
         }
@@ -241,7 +250,7 @@
         }
 
         function checkWangjiAnswer(selected, button) {
-            handleAnswer(optionContainers.step1, selected === correctWangji, `오답입니다. (${correctWangji})`, feedbackAreas.step1, button, buttons.toStep2, `button[data-branch="${correctWangji}"]`);
+            handleAnswer(optionContainers.step1, selected === correctWangji, `오답입니다. (${correctWangji})`, feedbackAreas.step1, button, buttons.toStep2, `button[data-branch="${correctWangji}"]`, proceedToStep2);
         }
 
         function renderSamhapOptions() {
@@ -254,7 +263,7 @@
         }
 
         function checkSamhapAnswer(selected, button) {
-            handleAnswer(optionContainers.step2, selected === correctSamhap, `오답입니다. (${correctSamhap})`, feedbackAreas.step2, button, buttons.startUnseong, `button[data-samhap="${correctSamhap}"]`);
+            handleAnswer(optionContainers.step2, selected === correctSamhap, `오답입니다. (${correctSamhap})`, feedbackAreas.step2, button, buttons.startUnseong, `button[data-samhap="${correctSamhap}"]`, startUnseongLoop);
         }
         
         function renderUnseongOptions() {
@@ -262,23 +271,26 @@
         }
         
         function checkUnseongAnswer(selected, button) {
-             handleAnswer(optionContainers.step3, selected === correctUnseong, `오답입니다. (${correctUnseong})`, feedbackAreas.step3, button, buttons.nextBranch, `button[data-unseong="${correctUnseong}"]`);
+             handleAnswer(optionContainers.step3, selected === correctUnseong, `오답입니다. (${correctUnseong})`, feedbackAreas.step3, button, buttons.nextBranch, `button[data-unseong="${correctUnseong}"]`, loadNextUnseongQuestion);
         }
 
-        function handleAnswer(container, isCorrect, wrongMsg, feedbackEl, button, nextBtn, correctSelector) {
+        function handleAnswer(container, isCorrect, wrongMsg, feedbackEl, button, nextBtn, correctSelector, autoProceedFunction = null) {
             container.querySelectorAll('button').forEach(btn => btn.disabled = true);
             if (isCorrect) {
                 feedbackEl.textContent = '정답입니다!';
                 feedbackEl.classList.add('text-green-600');
                 button.classList.add('correct');
+                if (autoProceedFunction) {
+                    setTimeout(autoProceedFunction, 1000); // 1초 후 자동 진행
+                }
             } else {
                 feedbackEl.textContent = wrongMsg;
                 feedbackEl.classList.add('text-red-600');
                 button.classList.add('incorrect');
                 const correctButton = container.querySelector(correctSelector);
                 if (correctButton) correctButton.classList.add('correct');
+                nextBtn.classList.remove('hidden'); // 오답 시 항상 다음 버튼 표시
             }
-            nextBtn.classList.remove('hidden');
         }
         
         function showCompletionScreen() {
@@ -289,19 +301,16 @@
              completionText.textContent = `천간 ${selectedStem}의 12운성 학습을 모두 마쳤습니다!`;
         }
 
-        buttons.toStep2.addEventListener('click', () => {
-            containers.step1.classList.add('hidden');
-            containers.step2.classList.remove('hidden');
-            renderSamhapOptions();
-        });
-
+        buttons.toStep2.addEventListener('click', proceedToStep2);
         buttons.startUnseong.addEventListener('click', startUnseongLoop);
         buttons.nextBranch.addEventListener('click', loadNextUnseongQuestion);
         buttons.restart.addEventListener('click', initializeApp);
+        changeStemButton.addEventListener('click', initializeApp);
 
         document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
+
 
 
